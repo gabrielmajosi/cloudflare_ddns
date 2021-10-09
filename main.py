@@ -1,5 +1,4 @@
 import json
-import multiprocessing
 import requests
 import logging
 import time
