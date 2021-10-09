@@ -1,4 +1,0 @@
-# auth
-email = "/"
-token = "/"
-
