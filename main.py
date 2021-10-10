@@ -9,7 +9,7 @@ with open("config.json", "r") as f:
 
 
 
-headers = {"X-Auth-Email":config["email"], "X-Auth-Key":config["api_key"], "Content-Type":"application/json"}
+headers = {"X-Auth-Email":config["email"], "X-Auth-Key":config["api_key"]}
 base_url = "https://api.cloudflare.com/client/v4"
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
@@ -22,17 +22,16 @@ def update_records():
     json_response = []
     for zone in config["zones"]:
         response = requests.get(f"{base_url}/zones/{zone}/dns_records", headers=headers)
-        for record in response.json()["result"]:
-            json_response.append(record)
-        
+        if response.json()["success"] and response.ok:
+            for record in response.json()["result"]:
+                json_response.append(record)
+        else:
+            raise Exception(f"Could not get dns records; response {response.status_code}")
 
-    if response.ok and response.json()["success"]:
-        for record in json_response:
-            if record["type"] == "A" or "CNAME":
-                records.append(record)
-    else:
-        raise Exception(f"Could not get dns records; response {response.status_code}")
-
+    
+    for record in json_response:
+        if record["type"] == "A" or "CNAME":
+            records.append(record)
 
 
 
@@ -55,20 +54,18 @@ def get_ip(): # beautiful
     while True:
         response = requests.get("https://api.ipify.org?format=json")
         if response.ok:
-            logging.info("Successfully grabbed ip")
+            #logging.info("Successfully grabbed ip") console spam, but i probably should fix the logic so it doesnt request spam... TOO BAD!
             return response.json()["ip"]
         else:
-            logging.info(f"HTTP code {response.status_code} when trying to get ip, retrying in 10 seconds")
+            logging.info(f"HTTP code {response.status_code} when trying to get ip, retrying in 5 seconds")
             time.sleep(5)
             continue
 
 def auto_check_worker():
-    logging.info(f"Checking for new IP every {config['query_every_seconds']} seconds")
+    logging.info(f"Worker started; checking for new IP every {config['query_every_seconds']} seconds")
     while True:
         update_records()
         time.sleep(config["query_every_seconds"])
 
 Thread(target=auto_check_worker).start()
-
-
 
