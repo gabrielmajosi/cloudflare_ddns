@@ -113,5 +113,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# config file with creds
+# config file with creds... dont wanna commit that
 config.json
