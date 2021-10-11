@@ -7,7 +7,11 @@ from threading import Thread
 with open("config.json", "r") as f:
     config = json.load(f)
 
-
+# Good job me for running it for 24 hours thinking it was doing something...
+assert config["email"], "check config.json"
+assert config["api_key"], "check config.json"
+assert config["zones"], "check config.json"
+assert config["query_every_seconds"], "check config.json"
 
 headers = {"X-Auth-Email":config["email"], "X-Auth-Key":config["api_key"]}
 base_url = "https://api.cloudflare.com/client/v4"
