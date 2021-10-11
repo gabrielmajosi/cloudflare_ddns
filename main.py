@@ -2,21 +2,27 @@ import json
 import requests
 import logging
 import time
+import os
 from threading import Thread
 
-with open("config.json", "r") as f:
-    config = json.load(f)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 
-# Good job me for running it for 24 hours thinking it was doing something...
-assert config["email"], "check config.json"
-assert config["api_key"], "check config.json"
-assert config["zones"], "check config.json"
-assert config["query_every_seconds"], "check config.json"
+if not os.path.isfile("config.json"):
+    logging.error("'config.json' not found, refer to 'README.md' for a fix.")
+    exit()
+
+with open("config.json", "r") as cfg:
+    config = json.load(cfg)
+
+# check if everything is there
+assert config["email"]
+assert config["api_key"]
+assert config["zones"]
+assert config["query_every_seconds"]
 
 headers = {"X-Auth-Email":config["email"], "X-Auth-Key":config["api_key"]}
 base_url = "https://api.cloudflare.com/client/v4"
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 
 def update_records():
     records = []
