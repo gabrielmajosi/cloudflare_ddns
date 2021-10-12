@@ -32,7 +32,7 @@ def update_records():
     json_response = []
     for zone in config["zones"]:
         response = requests.get(f"{base_url}/zones/{zone}/dns_records", headers=headers)
-        if response.json()["success"] and response.ok:
+        if response.ok:
             for record in response.json()["result"]:
                 json_response.append(record)
         else:
