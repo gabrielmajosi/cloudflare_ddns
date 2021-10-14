@@ -8,7 +8,7 @@ from threading import Thread
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 
 if not os.path.isfile("config.json"):
-    logging.error("'config.json' not found, refer to 'README.md' for a fix.")
+    logging.error("'config.json' not found, refer to 'README.md'.")
     exit()
 
 with open("config.json", "r") as cfg:
@@ -74,7 +74,11 @@ def get_ip(): # beautiful
 def auto_check_worker():
     logging.info(f"Worker started; checking for new IP every {config['query_every_seconds']} seconds")
     while True:
-        update_records()
+        try:
+            update_records()
+        except Exception as err:
+            logging.error(f"Encountered an error - {err} - continuing")
+            continue
         time.sleep(config["query_every_seconds"])
 
 Thread(target=auto_check_worker).start()
